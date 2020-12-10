@@ -1,3 +1,3 @@
-# nextjs-context-advanced
+# nextjs-react-context-advanced
 
-Lorem ipsum
+Ejemplo de carrito de compras usando React Context y sus Hooks.
