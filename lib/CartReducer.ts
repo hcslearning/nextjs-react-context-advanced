@@ -1,28 +1,16 @@
-function Storage( cartItems ) {
-    console.log("Storage")
-    console.log( typeof localStorage )
+function guardar( cartItems ) {
     if( typeof localStorage !== 'undefined' ) {
         localStorage.setItem('cart', JSON.stringify( Object.keys( cartItems ).length > 0 ? cartItems : {}))
     }
 }
 
 export function sumItems( cartItems ) {
-    console.log("cartItems:")
-    console.dir( cartItems )
-
-    Storage( cartItems )
     const itemCount = Object.values( cartItems ).reduce( (total, item) => total + item.cantidad, 0 )
     const total     = Object.values( cartItems ).reduce( (total, item) => total + item.producto.precio * item.cantidad, 0 )
     return { itemCount, total }
 }
 
 export default function CartReducer(state, action){
-    
-    console.log("CartReducer:state")
-    console.dir(state)
-    console.log("CartReducer:action")
-    console.dir(action)
-    
     let newState = null
     switch( action.type ) {
         case 'ADD':
@@ -41,10 +29,22 @@ export default function CartReducer(state, action){
                 ...newState,
                 ...sumItems( newState.cartItems )
             }
+            guardar( newState.cartItems )
             console.log("newState")
             console.dir(newState)
             return newState
-            break;
-
+            break
+        case 'INITCART':
+            newState = {
+                ...state
+            }
+            newState.cartItems = action.payload
+            newState = {
+                ...newState,
+                ...sumItems( newState.cartItems ),
+                cartLoadedFromStorage: true
+            }
+            return newState
+            break
     }
 }

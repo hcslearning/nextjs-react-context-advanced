@@ -11,28 +11,21 @@ storage = {
 const storage = {}
 const initialState = {
     cartItems: storage,
-    ...sumItems(storage)
+    ...sumItems(storage),
+    cartLoadedFromStorage: false
 }
-/*
-,
-    addProduct: () => {},
-    removeProduct: () => {},
-    increase: () => {},
-    decrease: () => {},
-    clearCart: () => {},
-    handleCheckout: () => {}
-*/
 
 export const CartContext = createContext( initialState )
 
 export default function CartContextProvider(props) {
-    
+
     const [state, dispatch] = useReducer(CartReducer, initialState)
 
     const addProduct    = (payload) => dispatch({type: 'ADD', payload})
     const removeProduct = (payload) => dispatch({type: 'REMOVE', payload})
     const increase      = (payload) => dispatch({type: 'INCREASE', payload})
     const decrease      = (payload) => dispatch({type: 'DECREASE', payload})
+    const initCart      = (payload) => dispatch({type: 'INITCART', payload})
     const clearCart     = (payload) => dispatch({type: 'CLEAR', payload})
     const handleCheckout = (payload) => dispatch({type: 'CHECKOUT', payload})
 
@@ -42,13 +35,24 @@ export default function CartContextProvider(props) {
         removeProduct,
         increase,
         decrease,
+        initCart,
         clearCart,
         handleCheckout
     }
 
+    useEffect( () => {
+        if( typeof localStorage !== 'undefined') {
+            const carro = localStorage.getItem('cart')
+            if( !state.cartLoadedFromStorage && typeof carro === "string" && carro.length > 2 ) {
+                initCart( JSON.parse( carro ) )
+            }
+        }
+    }, [initCart, state])
+    
     return (
         <CartContext.Provider value={cartContextValues}>
             {props.children}
         </CartContext.Provider>
     )
 }
+
